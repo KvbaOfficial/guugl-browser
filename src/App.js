@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 function App() {
   const [hackerMode, setHackerMode] = useState(false);
   const [konamiIndex, setKonamiIndex] = useState(0);
   const [hovered, setHovered] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const konamiCode = useMemo(
     () => [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
     []
@@ -27,21 +30,27 @@ function App() {
   );
 
   useEffect(() => {
-    if (hovered) {
-      const bgColorInterval = setInterval(() => {
+    let bgColorInterval,
+      alertInterval,
+      textColorInterval,
+      shakeInterval,
+      messageInterval;
+
+    if (hovered && !hackerMode) {
+      bgColorInterval = setInterval(() => {
         document.body.style.backgroundColor =
           "#" + Math.floor(Math.random() * 16777215).toString(16);
       }, 1000);
-      const alertInterval = setInterval(() => {
+      alertInterval = setInterval(() => {
         if (!document.querySelector(".bsod")) {
           alert("FIN, FIN, FIN!!!!");
         }
       }, 5000);
-      const textColorInterval = setInterval(() => {
+      textColorInterval = setInterval(() => {
         document.body.style.color =
           "#" + Math.floor(Math.random() * 16777215).toString(16);
       }, 1000);
-      const shakeInterval = setInterval(() => {
+      shakeInterval = setInterval(() => {
         const buttons = document.querySelectorAll(".shakeable");
         buttons.forEach((button) => {
           button.classList.add("shake");
@@ -50,19 +59,20 @@ function App() {
           }, 500);
         });
       }, 4000);
-      const messageInterval = setInterval(() => {
+      messageInterval = setInterval(() => {
         const message = messages[Math.floor(Math.random() * messages.length)];
         document.getElementById("annoyingMessage").textContent = message;
       }, 2000);
-      return () => {
-        clearInterval(bgColorInterval);
-        clearInterval(alertInterval);
-        clearInterval(textColorInterval);
-        clearInterval(shakeInterval);
-        clearInterval(messageInterval);
-      };
     }
-  }, [hovered, messages]);
+
+    return () => {
+      clearInterval(bgColorInterval);
+      clearInterval(alertInterval);
+      clearInterval(textColorInterval);
+      clearInterval(shakeInterval);
+      clearInterval(messageInterval);
+    };
+  }, [hovered, messages, hackerMode]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -151,6 +161,19 @@ function App() {
       email: userObject.email,
       avatar: userObject.picture,
     });
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        name: userObject.name,
+        email: userObject.email,
+        avatar: userObject.picture,
+      })
+    );
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
   };
 
   useEffect(() => {
@@ -167,12 +190,14 @@ function App() {
   return (
     <div className="App d-flex flex-column justify-content-center align-items-center vh-100 bg-light text-dark">
       <div className="top-right-corner">
-        <button className="btn btn-secondary" onClick={redirectToGmail}>
-          Gmail
-        </button>
+        {!user && (
+          <button className="btn btn-secondary" onClick={redirectToGmail}>
+            Gmail
+          </button>
+        )}
         {!user && <div id="google-signin-button"></div>}
         {user && (
-          <div className="user-info">
+          <div className="user-info" onClick={handleLogout}>
             <img src={user.avatar} alt="User Avatar" className="avatar" />
           </div>
         )}
