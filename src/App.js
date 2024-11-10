@@ -41,7 +41,7 @@ function App() {
           "#" + Math.floor(Math.random() * 16777215).toString(16);
       }, 1000);
       const shakeInterval = setInterval(() => {
-        const buttons = document.querySelectorAll("button");
+        const buttons = document.querySelectorAll(".shakeable");
         buttons.forEach((button) => {
           button.classList.add("shake");
           setTimeout(() => {
@@ -89,7 +89,7 @@ function App() {
   }, [konamiIndex, konamiCode]);
 
   useEffect(() => {
-    const buttons = document.querySelectorAll("button");
+    const buttons = document.querySelectorAll(".shakeable");
     const handleMouseOver = (e) => {
       if (!hackerMode) {
         e.target.style.position = "absolute";
@@ -113,7 +113,7 @@ function App() {
     setHackerMode(true);
     document.body.classList.add("hacker-mode");
     document.body.style.backgroundColor = "black";
-    document.querySelectorAll("button").forEach((button) => {
+    document.querySelectorAll(".shakeable").forEach((button) => {
       button.style.position = "static";
       button.style.opacity = 1;
     });
@@ -178,7 +178,7 @@ function App() {
         <button className="btn btn-secondary" onClick={redirectToGmail}>
           Gmail
         </button>
-        <div id="google-signin-button"></div>
+        {!user && <div id="google-signin-button"></div>}
         {user && (
           <div className="user-info">
             <img src={user.avatar} alt="User Avatar" className="avatar" />
@@ -202,13 +202,13 @@ function App() {
       </div>
       <div className="buttons">
         <button
-          className="btn btn-primary mr-2"
+          className="btn btn-primary mr-2 shakeable"
           onMouseOver={() => setHovered(true)}
           onClick={playSoundAndSearch}
         >
           Szukaj w Guugl
         </button>
-        <button className="btn btn-secondary">Szczęśliwy traf</button>
+        <button className="btn btn-secondary shakeable">Szczęśliwy traf</button>
       </div>
       <p id="annoyingMessage"></p>
     </div>
