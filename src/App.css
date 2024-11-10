@@ -127,3 +127,18 @@ body.hacker-mode {
   text-align: center;
   z-index: 9999;
 }
+
+.top-right-corner {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
