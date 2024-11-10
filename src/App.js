@@ -84,16 +84,36 @@ function App() {
         setKonamiIndex(0);
       }
     };
+
     const handleEscape = (e) => {
       if (e.key === "Escape") {
         showBSOD();
       }
     };
+
+    const handleTouchStart = (e) => {
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        if (touch.clientX < window.innerWidth / 2) {
+          handleKeyDown({ keyCode: 37 });
+        } else {
+          handleKeyDown({ keyCode: 39 });
+        }
+      } else if (e.touches.length === 2) {
+        handleKeyDown({ keyCode: 38 });
+      } else if (e.touches.length === 3) {
+        handleKeyDown({ keyCode: 40 });
+      }
+    };
+
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keydown", handleEscape);
+    document.addEventListener("touchstart", handleTouchStart);
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("touchstart", handleTouchStart);
     };
   }, [konamiIndex, konamiCode]);
 
@@ -108,12 +128,26 @@ function App() {
           Math.random() * (window.innerWidth - e.target.offsetWidth) + "px";
       }
     };
+
+    const handleTouchStart = (e) => {
+      if (!hackerMode) {
+        e.target.style.position = "absolute";
+        e.target.style.top =
+          Math.random() * (window.innerHeight - e.target.offsetHeight) + "px";
+        e.target.style.left =
+          Math.random() * (window.innerWidth - e.target.offsetWidth) + "px";
+      }
+    };
+
     buttons.forEach((button) => {
       button.addEventListener("mouseover", handleMouseOver);
+      button.addEventListener("touchstart", handleTouchStart);
     });
+
     return () => {
       buttons.forEach((button) => {
         button.removeEventListener("mouseover", handleMouseOver);
+        button.removeEventListener("touchstart", handleTouchStart);
       });
     };
   }, [hackerMode]);
@@ -169,6 +203,7 @@ function App() {
     setUser(null);
     setShowLogoutConfirm(false);
     localStorage.removeItem("user");
+    window.location.reload();
   };
 
   const cancelLogout = () => {
