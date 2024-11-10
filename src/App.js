@@ -160,15 +160,18 @@ function App() {
     document.body.appendChild(bsod);
   };
 
+  const handleSearchInput = (e) => {
+    const query = e.target.value.toUpperCase();
+    if (query === "BSOD") {
+      showBSOD();
+    } else if (query === "KONAMI") {
+      activateHackerMode();
+    }
+  };
+
   const playSoundAndSearch = () => {
     const query = document.getElementById("searchQuery").value;
-    if (query.toUpperCase() === "BSOD") {
-      showBSOD();
-    } else if (query.toUpperCase() === "KONAMI") {
-      activateHackerMode();
-    } else {
-      window.location.href = `https://www.google.com/search?q=${query}`;
-    }
+    window.location.href = `https://www.google.com/search?q=${query}`;
   };
 
   const redirectToGmail = () => {
@@ -249,6 +252,7 @@ function App() {
           className="form-control search-bar"
           id="searchQuery"
           placeholder="Szukaj w Guugl"
+          onChange={handleSearchInput}
         />
       </div>
       <div className="buttons">
