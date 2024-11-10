@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 function App() {
   const [hackerMode, setHackerMode] = useState(false);
@@ -26,36 +26,6 @@ function App() {
     ],
     []
   );
-
-  let shakeCountKonami = 0;
-  let shakeCountBSOD = 0;
-  let lastShakeTime = 0;
-
-  const handleDeviceMotion = (event) => {
-    const acceleration = event.accelerationIncludingGravity;
-    const currentTime = new Date().getTime();
-
-    if (currentTime - lastShakeTime > 1000) {
-      shakeCountKonami = 0;
-      shakeCountBSOD = 0;
-    }
-
-    if (acceleration.x > 15 || acceleration.y > 15 || acceleration.z > 15) {
-      lastShakeTime = currentTime;
-      shakeCountKonami++;
-      shakeCountBSOD++;
-
-      if (shakeCountKonami >= 4) {
-        activateHackerMode();
-        shakeCountKonami = 0;
-      }
-
-      if (shakeCountBSOD >= 2) {
-        showBSOD();
-        shakeCountBSOD = 0;
-      }
-    }
-  };
 
   useEffect(() => {
     let bgColorInterval,
@@ -121,36 +91,12 @@ function App() {
       }
     };
 
-    const handleTouchStart = (e) => {
-      if (e.touches.length === 1) {
-        const touch = e.touches[0];
-        if (touch.clientX < window.innerWidth / 2) {
-          handleKeyDown({ keyCode: 37 });
-        } else {
-          handleKeyDown({ keyCode: 39 });
-        }
-      } else if (e.touches.length === 2) {
-        handleKeyDown({ keyCode: 38 });
-      } else if (e.touches.length === 3) {
-        handleKeyDown({ keyCode: 40 });
-      }
-    };
-
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keydown", handleEscape);
-    document.addEventListener("touchstart", handleTouchStart);
-
-    if (window.DeviceMotionEvent) {
-      window.addEventListener("devicemotion", handleDeviceMotion);
-    }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keydown", handleEscape);
-      document.removeEventListener("touchstart", handleTouchStart);
-      if (window.DeviceMotionEvent) {
-        window.removeEventListener("devicemotion", handleDeviceMotion);
-      }
     };
   }, [konamiIndex, konamiCode]);
 
@@ -216,7 +162,13 @@ function App() {
 
   const playSoundAndSearch = () => {
     const query = document.getElementById("searchQuery").value;
-    window.location.href = `https://www.google.com/search?q=${query}`;
+    if (query.toUpperCase() === "BSOD") {
+      showBSOD();
+    } else if (query.toUpperCase() === "KONAMI") {
+      activateHackerMode();
+    } else {
+      window.location.href = `https://www.google.com/search?q=${query}`;
+    }
   };
 
   const redirectToGmail = () => {
