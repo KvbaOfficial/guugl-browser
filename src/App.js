@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 function App() {
   const [hackerMode, setHackerMode] = useState(false);
@@ -26,6 +26,36 @@ function App() {
     ],
     []
   );
+
+  let shakeCountKonami = 0;
+  let shakeCountBSOD = 0;
+  let lastShakeTime = 0;
+
+  const handleDeviceMotion = (event) => {
+    const acceleration = event.accelerationIncludingGravity;
+    const currentTime = new Date().getTime();
+
+    if (currentTime - lastShakeTime > 1000) {
+      shakeCountKonami = 0;
+      shakeCountBSOD = 0;
+    }
+
+    if (acceleration.x > 15 || acceleration.y > 15 || acceleration.z > 15) {
+      lastShakeTime = currentTime;
+      shakeCountKonami++;
+      shakeCountBSOD++;
+
+      if (shakeCountKonami >= 4) {
+        activateHackerMode();
+        shakeCountKonami = 0;
+      }
+
+      if (shakeCountBSOD >= 2) {
+        showBSOD();
+        shakeCountBSOD = 0;
+      }
+    }
+  };
 
   useEffect(() => {
     let bgColorInterval,
@@ -110,10 +140,17 @@ function App() {
     document.addEventListener("keydown", handleEscape);
     document.addEventListener("touchstart", handleTouchStart);
 
+    if (window.DeviceMotionEvent) {
+      window.addEventListener("devicemotion", handleDeviceMotion);
+    }
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keydown", handleEscape);
       document.removeEventListener("touchstart", handleTouchStart);
+      if (window.DeviceMotionEvent) {
+        window.removeEventListener("devicemotion", handleDeviceMotion);
+      }
     };
   }, [konamiIndex, konamiCode]);
 
