@@ -6,10 +6,8 @@ function App() {
   const [hackerMode, setHackerMode] = useState(false);
   const [konamiIndex, setKonamiIndex] = useState(0);
   const [hovered, setHovered] = useState(false);
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const konamiCode = useMemo(
     () => [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
     []
@@ -161,19 +159,20 @@ function App() {
       email: userObject.email,
       avatar: userObject.picture,
     });
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: userObject.name,
-        email: userObject.email,
-        avatar: userObject.picture,
-      })
-    );
   };
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     setUser(null);
+    setShowLogoutConfirm(false);
     localStorage.removeItem("user");
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   useEffect(() => {
@@ -190,7 +189,7 @@ function App() {
   return (
     <div className="App d-flex flex-column justify-content-center align-items-center vh-100 bg-light text-dark">
       <div className="top-right-corner">
-        {!user && (
+        {user && (
           <button className="btn btn-secondary" onClick={redirectToGmail}>
             Gmail
           </button>
@@ -202,6 +201,17 @@ function App() {
           </div>
         )}
       </div>
+      {showLogoutConfirm && (
+        <div className="logout-confirm">
+          <p>Czy jesteś pewien, że chcesz się wylogować?</p>
+          <button className="btn btn-danger" onClick={confirmLogout}>
+            Tak
+          </button>
+          <button className="btn btn-secondary" onClick={cancelLogout}>
+            Nie
+          </button>
+        </div>
+      )}
       <div className="logo mb-4">
         <span>G</span>
         <span>u</span>
