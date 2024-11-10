@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 function App() {
   const [hackerMode, setHackerMode] = useState(false);
