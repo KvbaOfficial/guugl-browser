@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import jwt_decode from "jwt-decode";
 import "./App.css";
 
 function App() {
@@ -143,33 +144,24 @@ function App() {
     window.location.href = "https://mail.google.com";
   };
 
-  const onSignIn = (googleUser) => {
-    const profile = googleUser.getBasicProfile();
+  const handleCredentialResponse = (response) => {
+    const userObject = jwt_decode(response.credential);
     setUser({
-      name: profile.getName(),
-      email: profile.getEmail(),
-      avatar: profile.getImageUrl(),
+      name: userObject.name,
+      email: userObject.email,
+      avatar: userObject.picture,
     });
   };
 
   useEffect(() => {
-    window.gapi.load("auth2", () => {
-      window.gapi.auth2
-        .init({
-          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-          scope: "profile email",
-        })
-        .then(() => {
-          window.gapi.signin2.render("google-signin-button", {
-            scope: "profile email",
-            width: 240,
-            height: 50,
-            longtitle: true,
-            theme: "dark",
-            onsuccess: onSignIn,
-          });
-        });
+    window.google.accounts.id.initialize({
+      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
     });
+    window.google.accounts.id.renderButton(
+      document.getElementById("google-signin-button"),
+      { theme: "outline", size: "large" }
+    );
   }, []);
 
   return (
